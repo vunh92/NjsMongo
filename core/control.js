@@ -20,4 +20,8 @@ router.get('/login', (req, res)=>{ res.render('login')})
 // Gọi api account
 router.use('/api/account', require('../api/A_account'))
 
+//-- connect pda
+// Gọi api account
+router.use('/pda/account', require('../api/PDA_account'))
+
 module.exports = router;
