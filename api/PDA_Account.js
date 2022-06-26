@@ -10,6 +10,8 @@ var salt = bcrypt.genSaltSync(10);
 const jwt = require('jsonwebtoken');
 const secret = '@#%$ED';
 
+var pdaAccount = require('../models/pda.account');
+
 //-- Get item - id
 router.get('/get_item/:id', (req, res) => {
     accountModel
@@ -140,8 +142,6 @@ router.post('/login', async (req, res) => {
         flag = 0;
         error += 'Vui lòng nhập Mật Khẩu\n';
     }
-    console.log(req.body)
-    console.log(user + " / " + pass)
 
     // Tổng kết
     if (flag == 1) {
@@ -149,30 +149,89 @@ router.post('/login', async (req, res) => {
         // check username
         accountModel
             .find({ username: user })
-            .exec((err, data) => {
-                if (err) {
-                    res.send({ kq: 0, err })
+            .exec((error, data) => {
+                if (error) {
+                    res.send({error})
                 } else {
                     if (data == '') {
-                        res.send({ kq: 0, err: 'Đăng Nhập không thành công' })
+                        res.send({ error: 'Đăng Nhập không thành công' })
                     } else {
                         // sử dụng bcryptjs để kiểm tra mật khẩu
                         const check_password = bcrypt.compareSync(pass, data[0].password);
                         if (check_password == true) {
-                            res.send({ kq: 1, data: data })
+                            let account = new pdaAccount(data[0].username, data[0].password, data[0].name, 
+                                data[0].email, data[0].phone, data[0].role, data[0].status, data[0].birthday, 
+                                data[0].address, data[0].trash, data[0].date_created, data[0].date_updated )
+                            res.send(account)
                         }
                         else {
-                            res.send({ kq: 0, err: 'Đăng Nhập không thành công' })
+                            res.sendStatus(404)
                         }
                     }
                 }
             })
     }
     else {
-        res.send({ kq: 0, error });
+        res.send({ error });
     }
 })
 
+
+// login
+router.post('/login2', async (req, res) => {
+    // khai báo
+    var user, pass, error = '', flag = 1;
+
+    // lấy dữ liệu
+    user = req.body.username ?? '';
+    pass = req.body.password ?? '';
+
+    // kiểm tra dữ liệu
+    if (user == '') {
+        flag = 0;
+        error += 'Vui lòng nhập Tên Đăng Nhập\n';
+    }
+    if (pass == '') {
+        flag = 0;
+        error += 'Vui lòng nhập Mật Khẩu\n';
+    }
+
+    var status = null;
+    status = {"type": "falil", "message": "falil", "code": 404, "error": true,}
+
+    // Tổng kết
+    if (flag == 1) {
+        // Gọi database
+        // check username
+        accountModel
+            .find({ username: user })
+            .exec((error, data) => {
+                if (error) {
+                    res.send(status)
+                } else {
+                    if (data == '') {
+                        res.send(status)
+                    } else {
+                        // sử dụng bcryptjs để kiểm tra mật khẩu
+                        const check_password = bcrypt.compareSync(pass, data[0].password);
+                        if (check_password == true) {
+                            status = {"type": "success", "message": "success", "code": 200, "error": false,}
+                            let account = new pdaAccount(data[0].username, data[0].password, data[0].name, 
+                                data[0].email, data[0].phone, data[0].role, data[0].status, data[0].birthday, 
+                                data[0].address, data[0].trash, data[0].date_created, data[0].date_updated )
+                            res.send({status: status , data: account})
+                        }
+                        else {
+                            res.sendStatus(404)
+                        }
+                    }
+                }
+            })
+    }
+    else {
+        res.send({ error });
+    }
+})
 
 
 module.exports = router;

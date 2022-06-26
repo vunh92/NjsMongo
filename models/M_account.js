@@ -48,7 +48,10 @@ const accountSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    date_updated: Date
+    date_updated: {
+        type: Date,
+        default: Date.now()
+    }
 })
 
 module.exports = mongoose.model('Account', accountSchema);

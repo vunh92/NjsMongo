@@ -22,6 +22,8 @@ router.use('/api/account', require('../api/A_account'))
 
 //-- connect pda
 // Gọi api account
-router.use('/pda/account', require('../api/PDA_account'))
+router.use('/pda/account', require('../api/PDA_Account'))
+// Gọi api movie
+router.use('/pda/movie', require('../api/PDA_Movie'))
 
 module.exports = router;
